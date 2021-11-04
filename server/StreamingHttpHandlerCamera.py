@@ -179,7 +179,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.stream.stopRecording(stopPreviewAllUsers=True)
                 self.stream.stopStream()
-                self.wfile.write("hello".encode('utf-8'))
+                self.wfile.write("ok".encode('utf-8'))
 
             # ----------record------------------------
             if self.path == "/stop_record":
@@ -231,12 +231,19 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                     if self.stream.startedStream == True:
                         break
                     sleep(1)
-                self.wfile.write("hello".encode('utf-8'))
+                self.wfile.write("ok".encode('utf-8'))
             # --------------------------------
 
             if self.path == '/stream.mjpg':
                 if userId != 0:
                     self.stream.startPreview(self, userId)
+
+            if self.path == '/get_user_id':
+                global connectedUsers
+                if userId in connectedUsers:
+                    self.send_response(200)    
+                    counter = counter + 1
+                    self.wfile.write(str(counter).encode('utf-8'))
 
             try:
 
