@@ -195,7 +195,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 userId = int(query["id"])
 
             if self.path == "/index.html":
-                self.path = 'templates/index.html'
+                self.path = 'static/index.html'
 
             # -----------feeder-----------------
             if self.path == "/feed":
@@ -341,6 +341,9 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 if self.path.endswith(".css"):
                     mimetype = 'text/css'
                     sendReply = True
+                if self.path.endswith(".chunk.css"):
+                    mimetype = 'text/css'
+                    sendReply = True
                 if self.path.endswith("min.css.map"):
                     mimetype = 'text/css'
                     sendReply = True
@@ -356,6 +359,10 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 if self.path.endswith(".ttf"):
                     mimetype = 'text/png'
                     sendReply = True
+                if self.path.endswith(".ico"):
+                    mimetype = 'image/avif'
+                    sendReply = True
+                
 
                 if sendReply == True:
                     f = open(curdir + sep + self.path, 'rb')

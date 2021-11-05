@@ -8,8 +8,6 @@ import os
 import signal
 import json
 
-CORS = True
-
 class StreamingOutput(object):
     def __init__(self):
         self.frame = None
@@ -62,8 +60,6 @@ class Streaming():
 
         if(self.startedPreview == True):
             selfed.send_response(200)
-            if(CORS):
-                self.send_header("Access-Control-Allow-Origin", "*")
             selfed.send_header('Age', 0)
             selfed.send_header('Cache-Control', 'no-cache, private')
             selfed.send_header('Pragma', 'no-cache')
