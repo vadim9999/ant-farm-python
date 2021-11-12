@@ -20,6 +20,8 @@ CORS = True
 
 counter = 0
 connectedUsers = []
+
+
 class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
     stream = Streaming()
     recordVideo = RecordVideo()
@@ -63,7 +65,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             camera = self.stream.getCamera()
             self.recordVideo.startRecording(
                 data["filename"], data["resolution"], True, camera, userId)
-            self.wfile.write("ok".encode('utf-8'))
 
         if self.path == "/capture_image":
             self.send_response(200)
@@ -94,7 +95,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             if(CORS):
                 self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write("hello".encode('utf-8'))
+            # self.wfile.write("hello".encode('utf-8'))
             self.stream.stopRecording(stopPreviewAllUsers=True)
             resolution = str(self.rfile.read(
                 int(self.headers['Content-Length'])).decode("utf-8"))
@@ -124,15 +125,34 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
 
     def do_GET(self):
 
-        if self.path == '/':
-            self.send_response(301)
+        if self.path == "/get_user_id":
+            self.send_response(200)
             if(CORS):
                 self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
             global counter
             counter = counter + 1
-            self.send_header('Location', '/index.html?id='+str(counter))  
-            self.end_headers()
-            return
+            connectedUsers.append(counter)
+            self.wfile.write(str(counter).encode('utf-8'))
+
+        # if self.path == '/':
+            # print("call")
+            # self.send_response(301)
+            # self.send_header('Location', '/index.html')
+            # self.end_headers()
+            # if self.path == '/':
+
+            # self.path = 'static/index.html'
+            # self.send_response(301)
+            # if(CORS):
+            # self.send_header("Access-Control-Allow-Origin", "*")
+
+            # global counter
+            # counter = counter + 1
+
+            # self.send_header('Location', '/index.html?id='+str(counter))
+            # self.end_headers()
+            # return
 
         elif self.path == '/sensors':
             content_type = 'text/html; charset=utf-8'
@@ -194,8 +214,8 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             if len(query) != 0:
                 userId = int(query["id"])
 
-            if self.path == "/index.html":
-                self.path = 'static/index.html'
+            # if self.path == "/index.html":
+            #     self.path = 'static/index.html'
 
             # -----------feeder-----------------
             if self.path == "/feed":
@@ -221,7 +241,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.stream.stopRecording(stopPreviewAllUsers=True)
                 self.stream.stopStream()
-                self.wfile.write("ok".encode('utf-8'))
+                # self.wfile.write("ok".encode('utf-8'))
 
             # ----------record------------------------
             if self.path == "/stop_record":
@@ -230,7 +250,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                     self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.recordVideo.stopRecording()
-                self.wfile.write("ok".encode('utf-8'))
+                # self.wfile.write("ok".encode('utf-8'))
 
             # -----------media-----------------
             if self.path == "/media":
@@ -259,7 +279,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                     self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 call("sudo shutdown -h now", shell=True)
-            
+
             if self.path == "/reboot_pi":
                 self.send_response(200)
                 if(CORS):
@@ -285,96 +305,13 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                     if self.stream.startedStream == True:
                         break
                     sleep(1)
-                self.wfile.write("ok".encode('utf-8'))
+                # self.wfile.write("ok".encode('utf-8'))
             # --------------------------------
 
             if self.path == '/stream.mjpg':
                 if userId != 0:
                     self.stream.startPreview(self, userId)
 
-            try:
-
-                sendReply = False
-                if self.path.endswith(".html"):
-                    global connectedUsers
-                    if userId in connectedUsers:
-                        self.send_response(301)  
-                        if(CORS):
-                            self.send_header("Access-Control-Allow-Origin", "*")  
-                        counter = counter + 1
-                        self.send_header('Location', '/index.html?id='+str(counter))
-                        self.end_headers()
-                    else:
-                        connectedUsers.append(userId)
-                        mimetype = 'text/html'
-                        content_type = 'text/html; charset=utf-8'
-                        with io.open(self.path, 'r') as f:
-                            index_template = f.read()
-                        tpl = Template(index_template)
-                        values = self.sensors.getAnimationValues()
-                        content = tpl.safe_substitute(dict(
-                            animationValuesSot=values["valuesHumSot"],
-                            animationValuesArena=values["valuesHumArena"],
-                            animationValuesOutside=values["valuesHumOutside"]))
-
-                        content = content.encode('utf-8')
-                        self.send_response(200)
-                        if(CORS):
-                            self.send_header("Access-Control-Allow-Origin", "*")
-                        self.send_header('Content-Type', content_type)
-                        self.send_header('Content-Length', len(content))
-                        self.end_headers()
-                        self.wfile.write(content)
-
-                if self.path.endswith(".jpg"):
-                    mimetype = 'image/jpg'
-                    sendReply = True
-                if self.path.endswith(".gif"):
-                    mimetype = 'image/gif'
-                    sendReply = True
-                if self.path.endswith(".js"):
-                    mimetype = 'application/javascript'
-                    sendReply = True
-                if self.path.endswith("min.js.map"):
-                    mimetype = 'application/javascript'
-                    sendReply = True
-                if self.path.endswith(".css"):
-                    mimetype = 'text/css'
-                    sendReply = True
-                if self.path.endswith(".chunk.css"):
-                    mimetype = 'text/css'
-                    sendReply = True
-                if self.path.endswith("min.css.map"):
-                    mimetype = 'text/css'
-                    sendReply = True
-                if self.path.endswith(".png"):
-                    mimetype = 'text/png'
-                    sendReply = True
-                if self.path.endswith(".woff2"):
-                    mimetype = 'text/png'
-                    sendReply = True
-                if self.path.endswith(".woff"):
-                    mimetype = 'text/png'
-                    sendReply = True
-                if self.path.endswith(".ttf"):
-                    mimetype = 'text/png'
-                    sendReply = True
-                if self.path.endswith(".ico"):
-                    mimetype = 'image/avif'
-                    sendReply = True
-                
-
-                if sendReply == True:
-                    f = open(curdir + sep + self.path, 'rb')
-                    self.send_response(200)
-                    if(CORS):
-                        self.send_header("Access-Control-Allow-Origin", "*")
-                    self.send_header('Content-type', mimetype)
-                    self.end_headers()
-                    self.wfile.write(f.read())
-                    f.close()
-                return
-
-            except IOError as ex:
-                self.send_error(404, 'File Not Found: %s' % self.path)
-
+            else:
+                self.send_error(404)
+                self.end_headers()
