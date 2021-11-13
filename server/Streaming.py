@@ -8,6 +8,7 @@ import os
 import signal
 import json
 
+
 class StreamingOutput(object):
     def __init__(self):
         self.frame = None
@@ -150,17 +151,18 @@ class Streaming():
 
 # *************Stream***************
 
+
     def startRecordingStream(self):
         try:
-            while self.startedStream == True:
-                self.camera.wait_recording(1)
+            # while self.startedStream == True:
+            self.camera.wait_recording(1)
         except Exception as e:
             print("Error")
-        finally:
-            self.camera.stop_recording()
-            self.camera.close()
-            os.killpg(os.getpgid(self.stream_pipe.pid), signal.SIGTERM)
-            self.startedStream = False
+        # finally:
+        #     self.camera.stop_recording()
+        #     self.camera.close()
+        #     os.killpg(os.getpgid(self.stream_pipe.pid), signal.SIGTERM)
+        #     self.startedStream = False
 
     def setYoutubeKey(self, youtube, key):
         self.youtube = youtube
@@ -190,4 +192,6 @@ class Streaming():
 
     def stopStream(self):
         self.startedStream = False
-   
+        self.camera.stop_recording()
+        self.camera.close()
+        os.killpg(os.getpgid(self.stream_pipe.pid), signal.SIGTERM)

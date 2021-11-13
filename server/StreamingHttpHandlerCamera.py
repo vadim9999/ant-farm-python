@@ -65,6 +65,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             camera = self.stream.getCamera()
             self.recordVideo.startRecording(
                 data["filename"], data["resolution"], True, camera, userId)
+            return
 
         if self.path == "/capture_image":
             self.send_response(200)
@@ -78,6 +79,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             data = json.loads(data)
             self.captureImage.takeImage(
                 data["filename"], data["resolution"], camera, True)
+            return
 
         if self.path == "/start":
             self.send_response(200)
@@ -87,7 +89,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             resolution = str(self.rfile.read(
                 int(self.headers['Content-Length'])).decode("utf-8"))
             self.stream.startRecording(resolution)
-
+            return
             # self.wfile.write("ok".encode('utf-8'))
 
         if self.path == '/start_stream':
@@ -100,6 +102,8 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             resolution = str(self.rfile.read(
                 int(self.headers['Content-Length'])).decode("utf-8"))
             self.stream.startStream(userID=userId, resolution1=resolution)
+            print("****start streaming")
+            return
 
         if self.path == '/set_stream_settings':
             self.send_response(200)
@@ -111,6 +115,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             settings = json.loads(data)
             self.stream.setYoutubeKey(settings["youtube"], settings["key"])
             self.wfile.write(data.encode('utf-8'))
+            return
 
         if self.path == "/set_settings_feeder":
             self.send_response(200)
@@ -122,6 +127,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             time = data * 86400
             self.feeder.resetfeedAfter()
             self.feeder.feedAfter(time)
+            return
 
     def do_GET(self):
 
@@ -134,6 +140,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             counter = counter + 1
             connectedUsers.append(counter)
             self.wfile.write(str(counter).encode('utf-8'))
+            return
 
         # if self.path == '/':
             # print("call")
@@ -174,6 +181,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
+            return
 
         url_parts = list(urlparse.urlparse(self.path))
         self.path = url_parts[2]
@@ -196,6 +204,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 self.send_header("Content-Length", str(fs.st_size))
                 self.end_headers()
                 shutil.copyfileobj(f, self.wfile)
+            return
 
         if url_parts[2].startswith('/delete') == True:
             self.send_response(204)
@@ -209,6 +218,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 os.remove(filepath)
             else:
                 print("The file does not exist")
+            return
 
         if len(query) != 0:
             userId = int(query["id"])
@@ -223,6 +233,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.feeder.feed()
+            return
 
             # ------------stream------------------
         if self.path == '/stream_settings':
@@ -233,6 +244,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.end_headers()
             data = self.stream.getYoutubeKey()
             self.wfile.write(data.encode('utf-8'))
+            return
 
         if self.path == "/stop_stream":
             self.send_response(200)
@@ -241,6 +253,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.end_headers()
             self.stream.stopRecording(stopPreviewAllUsers=True)
             self.stream.stopStream()
+            return
             # self.wfile.write("ok".encode('utf-8'))
 
             # ----------record------------------------
@@ -249,7 +262,9 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             if(CORS):
                 self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.recordVideo.stopRecording()
+            camera = self.stream.getCamera()
+            self.recordVideo.stopRecording(camera)
+            return
             # self.wfile.write("ok".encode('utf-8'))
 
             # -----------media-----------------
@@ -270,6 +285,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
+            return
 
         # shtdown & reboot RPI
         if self.path == "/shutdown_pi":
@@ -278,6 +294,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             call("sudo shutdown -h now", shell=True)
+            return
 
         if self.path == "/reboot_pi":
             self.send_response(200)
@@ -285,6 +302,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             call("sudo reboot", shell=True)
+            return
 
             # --------preview--------
         if self.path == "/stop":
@@ -294,6 +312,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.end_headers()
             if(userId != 0):
                 self.stream.stopRecording(userID=userId)
+            return
 
         if self.path == '/wait_start_preview':
             self.send_response(200)
@@ -304,9 +323,14 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 if self.stream.startedStream == True:
                     break
                 sleep(1)
+            return
             # self.wfile.write("ok".encode('utf-8'))
             # --------------------------------
 
         if self.path == '/stream.mjpg':
             if userId != 0:
                 self.stream.startPreview(self, userId)
+            return
+
+        self.send_error(404)
+        self.end_headers()

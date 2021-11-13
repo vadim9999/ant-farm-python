@@ -22,13 +22,12 @@ class RecordVideo():
                 self.startedRecording = True
                 filename1 = filename + ".h264"
                 camera.start_recording("media/" + filename1,format='h264', splitter_port=2, resize = resolution)
-                while self.startedRecording == True:
-                    camera.wait_recording(1)
+                # while self.startedRecording == True:
+                camera.wait_recording(1)
             except Exception as e:
-                print("Stor record")
-            finally:
-                camera.stop_recording(splitter_port = 2)
-                self.startedRecording = False
+                print("Stor record")                
 
-    def stopRecording(self):
+    def stopRecording(self, camera):
+        self.startedRecording = False
+        camera.stop_recording(splitter_port = 2)
         self.startedRecording = False
