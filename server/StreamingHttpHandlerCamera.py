@@ -154,7 +154,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             # self.end_headers()
             # return
 
-        elif self.path == '/sensors':
+        if self.path == '/sensors':
             content_type = 'text/html; charset=utf-8'
 
             connectedId = 0
@@ -175,143 +175,138 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(content)
 
-        else:
-            url_parts = list(urlparse.urlparse(self.path))
-            self.path = url_parts[2]
-            query = dict(urlparse.parse_qsl(url_parts[4]))
-            userId = 0
+        url_parts = list(urlparse.urlparse(self.path))
+        self.path = url_parts[2]
+        query = dict(urlparse.parse_qsl(url_parts[4]))
+        userId = 0
 
-            if url_parts[2].startswith('/download') == True:
-                urls = url_parts[2].split("/")
+        if url_parts[2].startswith('/download') == True:
+            urls = url_parts[2].split("/")
 
-                filepath = "media/" + urls[2]
-                with open(filepath, 'rb') as f:
-                    self.send_response(200)
-                    if(CORS):
-                        self.send_header("Access-Control-Allow-Origin", "*")
-                    self.send_header(
-                        "Content-Type", 'application/octet-stream')
-                    self.send_header(
-                        "Content-Disposition", 'attachment; filename="{}"'.format(os.path.basename(filepath)))
-                    fs = os.fstat(f.fileno())
-                    self.send_header("Content-Length", str(fs.st_size))
-                    self.end_headers()
-                    shutil.copyfileobj(f, self.wfile)
-
-            if url_parts[2].startswith('/delete') == True:
-                self.send_response(204)
+            filepath = "media/" + urls[2]
+            with open(filepath, 'rb') as f:
+                self.send_response(200)
                 if(CORS):
                     self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header(
+                    "Content-Type", 'application/octet-stream')
+                self.send_header(
+                    "Content-Disposition", 'attachment; filename="{}"'.format(os.path.basename(filepath)))
+                fs = os.fstat(f.fileno())
+                self.send_header("Content-Length", str(fs.st_size))
                 self.end_headers()
-                urls = url_parts[2].split("/")
-                filepath = "media/" + urls[2]
+                shutil.copyfileobj(f, self.wfile)
 
-                if os.path.exists(filepath):
-                    os.remove(filepath)
-                else:
-                    print("The file does not exist")
+        if url_parts[2].startswith('/delete') == True:
+            self.send_response(204)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            urls = url_parts[2].split("/")
+            filepath = "media/" + urls[2]
 
-            if len(query) != 0:
-                userId = int(query["id"])
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            else:
+                print("The file does not exist")
+
+        if len(query) != 0:
+            userId = int(query["id"])
 
             # if self.path == "/index.html":
             #     self.path = 'static/index.html'
 
             # -----------feeder-----------------
-            if self.path == "/feed":
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.feeder.feed()
+        if self.path == "/feed":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.feeder.feed()
 
             # ------------stream------------------
-            if self.path == '/stream_settings':
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                data = self.stream.getYoutubeKey()
-                self.wfile.write(data.encode('utf-8'))
+        if self.path == '/stream_settings':
+            print("streamSettings")
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            data = self.stream.getYoutubeKey()
+            self.wfile.write(data.encode('utf-8'))
 
-            if self.path == "/stop_stream":
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.stream.stopRecording(stopPreviewAllUsers=True)
-                self.stream.stopStream()
-                # self.wfile.write("ok".encode('utf-8'))
+        if self.path == "/stop_stream":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.stream.stopRecording(stopPreviewAllUsers=True)
+            self.stream.stopStream()
+            # self.wfile.write("ok".encode('utf-8'))
 
             # ----------record------------------------
-            if self.path == "/stop_record":
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.recordVideo.stopRecording()
-                # self.wfile.write("ok".encode('utf-8'))
+        if self.path == "/stop_record":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.recordVideo.stopRecording()
+            # self.wfile.write("ok".encode('utf-8'))
 
             # -----------media-----------------
-            if self.path == "/media":
-                content_type = 'text/html; charset=utf-8'
-                mypath = "./media/"
-                fileNames = [f for f in listdir(
-                    mypath) if isfile(join(mypath, f))]
-                if len(fileNames) > 0:
-                    fileNames = str(fileNames)
-                else:
-                    fileNames = ""
+        if self.path == "/media":
+            content_type = 'text/html; charset=utf-8'
+            mypath = "./media/"
+            fileNames = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+            if len(fileNames) > 0:
+                fileNames = str(fileNames)
+            else:
+                fileNames = ""
 
-                content = fileNames.encode("utf-8")
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.send_header('Content-Type', content_type)
-                self.send_header('Content-Length', len(content))
-                self.end_headers()
-                self.wfile.write(content)
+            content = fileNames.encode("utf-8")
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
 
-            # shtdown & reboot RPI
-            if self.path == "/shutdown_pi":
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                call("sudo shutdown -h now", shell=True)
+        # shtdown & reboot RPI
+        if self.path == "/shutdown_pi":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            call("sudo shutdown -h now", shell=True)
 
-            if self.path == "/reboot_pi":
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                call("sudo reboot", shell=True)
+        if self.path == "/reboot_pi":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            call("sudo reboot", shell=True)
 
             # --------preview--------
-            if self.path == "/stop":
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                if(userId != 0):
-                    self.stream.stopRecording(userID=userId)
+        if self.path == "/stop":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if(userId != 0):
+                self.stream.stopRecording(userID=userId)
 
-            if self.path == '/wait_start_preview':
-                self.send_response(200)
-                if(CORS):
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                while True:
-                    if self.stream.startedStream == True:
-                        break
-                    sleep(1)
-                # self.wfile.write("ok".encode('utf-8'))
+        if self.path == '/wait_start_preview':
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            while True:
+                if self.stream.startedStream == True:
+                    break
+                sleep(1)
+            # self.wfile.write("ok".encode('utf-8'))
             # --------------------------------
 
-            if self.path == '/stream.mjpg':
-                if userId != 0:
-                    self.stream.startPreview(self, userId)
-
-            else:
-                self.send_error(404)
-                self.end_headers()
+        if self.path == '/stream.mjpg':
+            if userId != 0:
+                self.stream.startPreview(self, userId)
