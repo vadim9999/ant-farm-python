@@ -327,6 +327,15 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             # self.wfile.write("ok".encode('utf-8'))
             # --------------------------------
 
+        if self.path == '/is_streaming':
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(str(self.stream.startedStream).encode('utf-8'))
+            print(self.stream.startedStream)
+            return
+
         if self.path == '/stream.mjpg':
             if userId != 0:
                 self.stream.startPreview(self, userId)
