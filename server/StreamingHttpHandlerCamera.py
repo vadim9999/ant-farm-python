@@ -237,7 +237,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
 
             # ------------stream------------------
         if self.path == '/stream_settings':
-            print("streamSettings")
             self.send_response(200)
             if(CORS):
                 self.send_header("Access-Control-Allow-Origin", "*")
