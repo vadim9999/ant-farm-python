@@ -3,18 +3,22 @@ import time
 import threading
 
 class ControlServo():
+    # one day
     timer = 86400
     servoChannel = 0
+
     def __init__(self):
-        
+
         self.feedAfter(self.timer)
-    
-    
+
+    def getFeedInterval(self):
+        return self.timer
+
     def setServo(self, servoChannel, position):
-        servoStr ="%u=%u\n" % (servoChannel, position)
+        servoStr = "%u=%u\n" % (servoChannel, position)
         with open("/dev/servoblaster", "wb") as f:
             f.write(servoStr.encode("utf-8"))
-    
+
     def feedAfter(self, time):
         self.timer = time
         self.t = threading.Timer(time, self.feedTimer)
@@ -44,4 +48,3 @@ class ControlServo():
             if val == 50:
                 break
             val = val - 1
-        
