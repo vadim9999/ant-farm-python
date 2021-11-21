@@ -303,6 +303,17 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             call("sudo reboot", shell=True)
             return
 
+        if self.path == "/get_settings_feeder":
+            self.send_response(200)
+            if(CORS):
+                self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+
+            data = str(
+                int(self.feeder.getFeedInterval() / 86400))
+            self.wfile.write(data.encode('utf-8'))
+            return
+
             # --------preview--------
         if self.path == "/stop":
             self.send_response(200)
