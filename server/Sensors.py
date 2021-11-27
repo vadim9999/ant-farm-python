@@ -8,32 +8,33 @@ class Sensors():
     middleWaterPin = 24
     lowWaterPin = 25
 
-    # def __init__(self):
-    #     self.initWaterLevel()
+    def __init__(self):
+        self.initWaterLevel()
 
-    # def initWaterLevel(self):
-    #     GPIO.setmode(GPIO.BCM)
-    #     try:
-    #         GPIO.setup(self.fullWaterPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    #         GPIO.setup(self.middleWaterPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    #         GPIO.setup(self.lowWaterPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    #     except:
-    #         print("Err")
+    def initWaterLevel(self):
+        GPIO.setmode(GPIO.BCM)
+        try:
+            GPIO.setup(self.fullWaterPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(self.middleWaterPin, GPIO.IN,
+                       pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(self.lowWaterPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        except:
+            print("Err")
 
     def getDataDHTS(self):
 
-        # humidityOutside, temperatureOutside = Adafruit_DHT.read_retry(11, 27)
-        # humiditySot, temperatureSot = Adafruit_DHT.read_retry(11, 17)
-        # humidityArena, temperatureArena = Adafruit_DHT.read_retry(11, 26)
+        humidityOutside, temperatureOutside = Adafruit_DHT.read_retry(11, 27)
+        humiditySot, temperatureSot = Adafruit_DHT.read_retry(11, 17)
+        humidityArena, temperatureArena = Adafruit_DHT.read_retry(11, 26)
 
-        humidityOutside = 70
-        temperatureOutside = 26
+        # humidityOutside = 70
+        # temperatureOutside = 26
 
-        humiditySot = 71
-        temperatureSot = 27
+        # humiditySot = 71
+        # temperatureSot = 27
 
-        humidityArena = 72
-        temperatureArena = 28
+        # humidityArena = 72
+        # temperatureArena = 28
 
         if humidityOutside is None and temperatureOutside is None:
             humidityOutside = 20
@@ -82,12 +83,14 @@ class Sensors():
         full = False
         middle = False
         low = False
-        # if GPIO.input(self.fullWaterPin) == GPIO.HIGH:
-        # full = True
-        # if GPIO.input(self.middleWaterPin) == GPIO.HIGH:
-        # middle = True
-        # if GPIO.input(self.lowWaterPin) == GPIO.HIGH:
-        # low = True
+
+        if GPIO.input(self.fullWaterPin) == GPIO.HIGH:
+            full = True
+        if GPIO.input(self.middleWaterPin) == GPIO.HIGH:
+            middle = True
+        if GPIO.input(self.lowWaterPin) == GPIO.HIGH:
+            low = True
+    
         level = 80
         if full == True and middle == False and low == False:
             level = 20
