@@ -82,7 +82,7 @@ class Sensors():
         if GPIO.input(self.lowWaterPin) == GPIO.HIGH:
             low = True
     
-        level = 0
+        level = 80
         if full == True and middle == False and low == False:
             level = 20
         elif full == True and middle == True and low == False:
@@ -92,7 +92,7 @@ class Sensors():
         elif full == False and middle == True and low == True:
             level = 80
         else:
-            level = 0
+            level = 90
 
         return level
 
