@@ -1,4 +1,3 @@
-# import bluetooth
 from bluetooth import *
 import subprocess
 
