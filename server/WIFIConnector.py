@@ -9,7 +9,6 @@ class WIFIConnector():
 
     def getWIFINetworks(self):
         cell = list(Cell.all('wlan0'))
-        arrStr = "["
         networks = []
         for i in range(len(cell)):
             networks.append(cell[i].ssid)

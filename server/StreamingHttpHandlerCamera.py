@@ -90,19 +90,16 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                 int(self.headers['Content-Length'])).decode("utf-8"))
             self.stream.startRecording(resolution)
             return
-            # self.wfile.write("ok".encode('utf-8'))
 
         if self.path == '/start_stream':
             self.send_response(200)
             if(CORS):
                 self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            # self.wfile.write("hello".encode('utf-8'))
             self.stream.stopRecording(stopPreviewAllUsers=True)
             resolution = str(self.rfile.read(
                 int(self.headers['Content-Length'])).decode("utf-8"))
             self.stream.startStream(userID=userId, resolution1=resolution)
-            print("****start streaming")
             return
 
         if self.path == '/set_stream_settings':
@@ -141,25 +138,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             connectedUsers.append(counter)
             self.wfile.write(str(counter).encode('utf-8'))
             return
-
-        # if self.path == '/':
-            # print("call")
-            # self.send_response(301)
-            # self.send_header('Location', '/index.html')
-            # self.end_headers()
-            # if self.path == '/':
-
-            # self.path = 'static/index.html'
-            # self.send_response(301)
-            # if(CORS):
-            # self.send_header("Access-Control-Allow-Origin", "*")
-
-            # global counter
-            # counter = counter + 1
-
-            # self.send_header('Location', '/index.html?id='+str(counter))
-            # self.end_headers()
-            # return
 
         if self.path == '/sensors':
             content_type = 'text/html; charset=utf-8'
@@ -223,10 +201,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
         if len(query) != 0:
             userId = int(query["id"])
 
-            # if self.path == "/index.html":
-            #     self.path = 'static/index.html'
-
-            # -----------feeder-----------------
         if self.path == "/feed":
             self.send_response(200)
             if(CORS):
@@ -235,7 +209,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.feeder.feed()
             return
 
-            # ------------stream------------------
         if self.path == '/stream_settings':
             self.send_response(200)
             if(CORS):
@@ -253,9 +226,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.stream.stopRecording(stopPreviewAllUsers=True)
             self.stream.stopStream()
             return
-            # self.wfile.write("ok".encode('utf-8'))
 
-            # ----------record------------------------
         if self.path == "/stop_record":
             self.send_response(200)
             if(CORS):
@@ -264,9 +235,7 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             camera = self.stream.getCamera()
             self.recordVideo.stopRecording(camera)
             return
-            # self.wfile.write("ok".encode('utf-8'))
 
-            # -----------media-----------------
         if self.path == "/media":
             content_type = 'text/html; charset=utf-8'
             mypath = "./media/"
@@ -286,7 +255,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.wfile.write(content)
             return
 
-        # shtdown & reboot RPI
         if self.path == "/shutdown_pi":
             self.send_response(200)
             if(CORS):
@@ -314,7 +282,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
             self.wfile.write(data.encode('utf-8'))
             return
 
-            # --------preview--------
         if self.path == "/stop":
             self.send_response(200)
             if(CORS):
@@ -334,8 +301,6 @@ class StreamingHttpHandlerCamera(BaseHTTPRequestHandler):
                     break
                 sleep(1)
             return
-            # self.wfile.write("ok".encode('utf-8'))
-            # --------------------------------
 
         if self.path == '/is_streaming':
             self.send_response(200)

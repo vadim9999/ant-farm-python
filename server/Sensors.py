@@ -27,15 +27,6 @@ class Sensors():
         humiditySot, temperatureSot = Adafruit_DHT.read_retry(11, 17)
         humidityArena, temperatureArena = Adafruit_DHT.read_retry(11, 26)
 
-        # humidityOutside = 70
-        # temperatureOutside = 26
-
-        # humiditySot = 71
-        # temperatureSot = 27
-
-        # humidityArena = 72
-        # temperatureArena = 28
-
         if humidityOutside is None and temperatureOutside is None:
             humidityOutside = 20
             temperatureOutside = 30

@@ -50,13 +50,11 @@ class Streaming():
 
     def getConnectedUserId(self):
         return self.connectedUserId
-    # ------------------
 
     def startCamera(self, resolution1):
         self.camera = picamera.PiCamera(resolution=resolution1, framerate=24)
         self.output = StreamingOutput()
 
-    # *********Preview***********
     def startPreview(self, selfed, user_Id):
 
         if(self.startedPreview == True):
@@ -148,21 +146,11 @@ class Streaming():
             self.deleteUsers = True
             self.stoppedUserId = userID
 
-
-# *************Stream***************
-
-
     def startRecordingStream(self):
         try:
-            # while self.startedStream == True:
             self.camera.wait_recording(1)
         except Exception as e:
             print("Error")
-        # finally:
-        #     self.camera.stop_recording()
-        #     self.camera.close()
-        #     os.killpg(os.getpgid(self.stream_pipe.pid), signal.SIGTERM)
-        #     self.startedStream = False
 
     def setYoutubeKey(self, youtube, key):
         self.youtube = youtube

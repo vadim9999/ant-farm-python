@@ -3,7 +3,6 @@ import time
 import threading
 
 class ControlServo():
-    # one day
     timer = 86400
     servoChannel = 0
 
